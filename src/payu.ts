@@ -1,4 +1,3 @@
-import express from "express";
 import dotenv from "dotenv";
 import UnifyPaymentGatewayClient, {
   CurrencyEnum,
@@ -20,33 +19,29 @@ import UnifyPaymentGatewayClient, {
   IPayment,
   IUnifyPaymentGatewayConfigOptions,
   ProviderTypes,
+  IOrderPaymentPayUResponse,
 } from "unify-payment-gateway";
-import { payuCreateOrder } from "./payu";
 
 
 dotenv.config();
 
 const gateway = new UnifyPaymentGatewayClient({
-  provider: ProviderTypes.RAZORPAY,
-  clientId: process.env.RAZORPAY_KEY_ID || "",
-  clientSecret: process.env.RAZORPAY_KEY_SECRET || "",
+  provider: ProviderTypes.PAYU,
+  clientId: process.env.PAYU_MERCHANT_KEY || "",
+  salt: process.env.PAYU_SALT || "",
 });
 
-// create payu order
-payuCreateOrder();
-
-const initFunction = async () => {
+export const payuCreateOrder = async () => {
   const payload: IOrderCreatePayload = {
-    amount: 1000, // Amount in paise
+    amount: 500,
     currency: CurrencyEnum.INR,
-    receipt: "receipt#1",
-    notes: {
-      note_key_1: "value3",
-      note_key_2: "value2",
-    },
+    email: "test@gmail.com",
+    phone: "1234567890",
+    name: "Test User",
+    product_info: "Test Product",
+    txn_id: "txn_1234567890",
+    notes: {}
   };
-  const order = await gateway.order.createOrder(payload);
-  console.log(order, "Order created successfully");
+  const order: IOrderPaymentPayUResponse = await gateway.order.createOrder(payload);
+  console.log(order, "Payu Order created successfully");
 };
-
-initFunction();
